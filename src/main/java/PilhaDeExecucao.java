@@ -12,8 +12,9 @@ public class PilhaDeExecucao {
 
         Usuario usuario = null;
 
-            System.out.println(usuario.nome);
-
+        System.out.println(usuario.nome);
+        Usuario usuario = new Usuario("Vinicius");
+        System.out.println(usuario.nome);
 
         System.out.println("[Fim] - metodo2");
     }
@@ -26,6 +27,7 @@ public class PilhaDeExecucao {
         }catch (NullPointerException ex){
             System.out.println("Usuário não encontrado");
         }
+        metodo1();
 
         System.out.println("[Fim] - main");
     }

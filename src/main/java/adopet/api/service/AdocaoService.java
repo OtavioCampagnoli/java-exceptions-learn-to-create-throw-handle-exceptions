@@ -39,16 +39,31 @@ public class AdocaoService {
         Pet pet = petRepository.getReferenceById(dto.idPet());
         Tutor tutor = tutorRepository.getReferenceById(dto.idTutor());
 
+        //Pet já adotado;
+        if(pet.getAdotado()){
+            throw new IllegalStateException("Pet já adotado");
+        }
+
+        //Pet com solicitação de adoção em andamento;
+        Boolean petAdocaoEmAndamento = adocaoRepository.existsByPetIdAndStatus(dto.idPet(),StatusAdocao.AGUARDANDO_AVALIACAO);
+
+        if(petAdocaoEmAndamento){
+            throw new UnsupportedOperationException("Pet com adocão em andamento");
+        }
+
+        //Tutor com 2 adoções aprovadas.
+
+        Integer tutorAdocoes = adocaoRepository.countByTutorIdAndStatus(dto.idTutor(),StatusAdocao.APROVADO);
+
+        if (tutorAdocoes == 2){
+            throw new IllegalStateException("Tutor com máximo de adocoes");
+        }
+
         adocaoRepository.save(new Adocao(tutor,pet, dto.motivo()));
     }
 
     public void aprovar(AprovarAdocaoDTO dto){
         Adocao adocao = adocaoRepository.getReferenceById(dto.idAdocao());
-        try {
-
-        } catch (EntityNotFoundException ex) {
-            System.out.println("Adoção não encontrada");
-        }
         adocao.marcarComoAprovada();
         adocao.getPet().marcarComoAdotado();
     }

@@ -23,38 +23,46 @@ public class AdocaoController {
     private AdocaoService service;
 
     @GetMapping
-    public ResponseEntity<List<AdocaoDTO>> buscarTodos() {
+    public ResponseEntity<List<AdocaoDTO>> buscarTodos(){
         List<AdocaoDTO> adocoes = service.listarTodos();
         return ResponseEntity.ok(adocoes);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AdocaoDTO> buscar(@PathVariable Long id) {
+    public ResponseEntity<AdocaoDTO> buscar(@PathVariable Long id){
         AdocaoDTO adocao = service.listar(id);
         return ResponseEntity.ok(adocao);
     }
 
     @PostMapping
     @Transactional
-    public ResponseEntity<String> solicitar(@RequestBody @Valid SolicitacaoDeAdocaoDTO dados) {
-        this.service.solicitar(dados);
+    public ResponseEntity<String> solicitar(@RequestBody @Valid SolicitacaoDeAdocaoDTO dados){
+
+        try {
+            this.service.solicitar(dados);
+        }catch (IllegalStateException | UnsupportedOperationException  ex){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        }
+
         return ResponseEntity.ok("Adoção solicitada com sucesso!");
     }
 
     @PutMapping("/aprovar")
     @Transactional
-    public ResponseEntity<String> aprovar(@RequestBody @Valid AprovarAdocaoDTO dto) {
-        try {
+    public ResponseEntity<String> aprovar(@RequestBody @Valid AprovarAdocaoDTO dto){
+        try{
             this.service.aprovar(dto);
-        } catch (EntityNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }catch (EntityNotFoundException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Adocao não encontrada");
         }
+
+        this.service.aprovar(dto);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/reprovar")
     @Transactional
-    public ResponseEntity<String> reprovar(@RequestBody @Valid ReprovarAdocaoDTO dto) {
+    public ResponseEntity<String> reprovar(@RequestBody @Valid ReprovarAdocaoDTO dto){
         this.service.reprovar(dto);
         return ResponseEntity.ok().build();
     }
